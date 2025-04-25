@@ -14,8 +14,18 @@ function ShoppingList() {
   }, []);
 
   function handleDeleteItem(deletedItem) {
-    const updatedItems = items.filter((item) => item.id !== deletedItem.id);
-    setItems(updatedItems);
+    fetch(`http://localhost:4000/items/${deletedItem.id}`, {
+      method: "DELETE",
+    })
+      .then((r) => {
+        if (r.ok) {
+          const updatedItems = items.filter((item) => item.id !== deletedItem.id);
+          setItems(updatedItems);
+        }
+      })
+      .catch((error) => {
+        console.error("Failed to delete item:", error);
+      });
   }
 
   function handleUpdateItem(updatedItem) {
@@ -32,13 +42,13 @@ function ShoppingList() {
   function handleAddItem(newItem) {
     setItems([...items, newItem]);
   }
+
   function handleCategoryChange(category) {
     setSelectedCategory(category);
   }
 
   const itemsToDisplay = items.filter((item) => {
     if (selectedCategory === "All") return true;
-
     return item.category === selectedCategory;
   });
 
@@ -50,17 +60,18 @@ function ShoppingList() {
         onCategoryChange={handleCategoryChange}
       />
       <ul className="Items">
-      {itemsToDisplay.map((item) => (
+        {itemsToDisplay.map((item) => (
           <Item
             key={item.id}
             item={item}
             onUpdateItem={handleUpdateItem}
-            onDeleteItem={handleDeleteItem} />
+            onDeleteItem={handleDeleteItem}
+          />
         ))}
       </ul>
     </div>
   );
 }
 
-
 export default ShoppingList;
+
